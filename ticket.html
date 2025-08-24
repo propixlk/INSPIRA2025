@@ -165,7 +165,7 @@
 
 <script>
 // IMPORTANT: Replace this URL with your new Google Apps Script URL from Step 3
-const formActionUrl = 'https://script.google.com/macros/s/AKfycbw-hhmJB6r9qJtWsyXAQYQCHPqv3BNfvjfeBGxlhLz1oeruFeqzCdbS8n4niOnL5QfTtg/exec';
+const formActionUrl = 'https://script.google.com/macros/s/AKfycbwcLctmQdWXtDAKynFFfL8e8V7JoYK_KWFJI5QAbUHWPDVSYj5nHMjqqximinjW_2E_qQ/exec';
 
 const ticketForm = document.getElementById('ticket-form');
 const formContainer = document.getElementById('form-container');
@@ -266,7 +266,7 @@ ticketForm.addEventListener('submit', function (e) {
         })
         .catch(error => {
             console.error('Error submitting form data:', error);
-            alert('There was an error submitting your data. Please try again.');
+            alert('Back again and please enter valid Email Address.');
         })
         .finally(() => {
              // Re-enable button
