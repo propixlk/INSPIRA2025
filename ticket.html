@@ -80,7 +80,7 @@
                         <i class="bi bi-ticket-detailed-fill mr-2"></i> Get Ticket
                     </button>
                 </form>
-                <p style="font-style:inherit"> <br>You'll receive an "e-certificate" of participation by Email.</p>
+                <p style="font-style:inherit"> <br>You will receive a <b>ZOOM LINK</b> via Email.</p>
             </div>
         </div>
 
@@ -165,7 +165,7 @@
 
 <script>
 // IMPORTANT: Replace this URL with your new Google Apps Script URL from Step 3
-const formActionUrl = 'https://script.google.com/macros/s/AKfycbzDOvGLSjbPgus8dP3cl2xIbqW71bkdA8wJbXvUoh6Mwg5ytOHHySO2d-ys0kXDewWE1Q/exec';
+const formActionUrl = 'https://script.google.com/macros/s/AKfycbxh1UdaVF09DyezTTYJBUAfoaQqB6YJHwT7F98WfhC_yuXW--R6ERZY22UUpfWg2i7nlA/exec';
 
 const ticketForm = document.getElementById('ticket-form');
 const formContainer = document.getElementById('form-container');
@@ -254,7 +254,7 @@ ticketForm.addEventListener('submit', function (e) {
             method: 'POST',
             body: JSON.stringify(payload),
             headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // Required for Apps Script
+                'Content-Type': 'text/plain;charset=utf-8', // Required
             },
         })
         .then(response => response.json())
