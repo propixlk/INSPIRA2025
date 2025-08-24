@@ -143,7 +143,7 @@
             <div class="bg-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
                 <h2 class="text-3xl font-bold text-center mb-2">Get Your Event Ticket</h2>
                 <p class="text-center text-gray-300 mb-6">Enter your details to generate your entry pass.</p>
-                <form id="ticket-form" class="space-y-6" action="https://script.google.com/macros/s/AKfycbx4B8tePJD-8xkE8C5l_iA5l_xzlYTCXHURABeIfwpPxJujh0JzgW-D4NQSrxjR9JXE/exec" method="POST">
+                <form id="ticket-form" class="space-y-6" action="https://script.google.com/macros/s/AKfycbw-hhmJB6r9qJtWsyXAQYQCHPqv3BNfvjfeBGxlhLz1oeruFeqzCdbS8n4niOnL5QfTtg/exec" method="POST">
     <div>
         <label for="regNumber" class="block mb-2 text-sm font-medium text-gray-200">Registration Number</label>
         <input type="text" id="regNumber" name="regNumber" class="form-input w-full px-4 py-3 rounded-lg text-white" placeholder="e.g., ASP/2024/000" required>
@@ -240,88 +240,118 @@
         navMenu.classList.toggle('space-x-0');
         navMenu.classList.toggle('mt-4');
     });
-</script>
-    <script>
-        // Get references to the DOM elements
-const ticketForm = document.getElementById('ticket-form');
-const formContainer = document.getElementById('form-container');
-const ticketContainer = document.getElementById('ticket-container');
-const downloadBtn = document.getElementById('download-btn');
-const newTicketBtn = document.getElementById('new-ticket-btn');
+</script><script>
+    // Get references to the DOM elements
+    const ticketForm = document.getElementById('ticket-form');
+    const formContainer = document.getElementById('form-container');
+    const ticketContainer = document.getElementById('ticket-container');
+    const downloadBtn = document.getElementById('download-btn');
+    const newTicketBtn = document.getElementById('new-ticket-btn');
+    const submitBtn = ticketForm.querySelector('button[type="submit"]');
 
-// Handle form submission
-ticketForm.addEventListener('submit', function (e) {
-    e.preventDefault(); // This line prevents the default form submission to the action URL
+    // --- YOUR GOOGLE APPS SCRIPT WEB APP URL GOES HERE ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLpIm2Kd4YxxQQ9J7lDsAyh0cqZ7Gj9duYNBY1jH_NEzsOzX6y71RIc6T4OtZT-XCN/exec"; 
 
-    // Get user input
-    const regNumber = document.getElementById('regNumber').value;
-    const fullName = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
+    // Function to validate the registration number
+    function validateRegNumber(regNumber) {
+        const upperCaseReg = regNumber.toUpperCase();
+        const parts = upperCaseReg.split('/');
+        if (parts.length !== 3 || parts[1] !== '2024') return false;
+        const prefix = parts[0];
+        const num = parseInt(parts[2], 10);
+        if (isNaN(num)) return false;
+        switch (prefix) {
+            case 'ASB': return num >= 0 && num <= 146;
+            case 'ASP': return num >= 0 && num <= 121;
+            case 'HPT': return num >= 0 && num <= 59;
+            case 'ICT': return num >= 0 && num <= 143;
+            default: return false;
+        }
+    }
 
-    // Populate the ticket with user data
-    document.getElementById('ticket-name').textContent = fullName;
-    document.getElementById('ticket-reg').textContent = regNumber;
+    // Handle form submission
+    ticketForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        const regNumber = document.getElementById('regNumber').value;
+        const fullName = document.getElementById('fullName').value;
+        const email = document.getElementById('email').value;
 
-    // Generate a simple unique ticket ID
-    const ticketId = 'INSP25-' + Date.now().toString().slice(-6);
-    document.getElementById('ticket-id').textContent = ticketId;
+        if (!validateRegNumber(regNumber)) {
+            alert('Please enter a valid Registration Number! (Ex:ASP/2024/000)');
+            return;
+        }
 
-    // Hide the form and show the ticket
-    formContainer.classList.add('hidden');
-    ticketContainer.classList.remove('hidden');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split animate-spin mr-2"></i> Generating & Sending...';
 
+        document.getElementById('ticket-name').textContent = fullName;
+        document.getElementById('ticket-reg').textContent = regNumber;
+        const ticketId = 'INSP25-' + Date.now().toString().slice(-6);
+        document.getElementById('ticket-id').textContent = ticketId;
+        
+        const ticketElement = document.getElementById('ticket');
 
-    // url
-    const formActionUrl = ticketForm.action;
+        html2canvas(ticketElement, { scale: 2, useCORS: true }).then(canvas => {
+            const ticketImage = canvas.toDataURL('image/png');
 
-    // FormData object 
-    const formData = new FormData();
-    formData.append('regNumber', regNumber);
-    formData.append('fullName', fullName);
-    formData.append('email', email);
+            const formData = new FormData();
+            formData.append('fullName', fullName);
+            formData.append('email', email);
+            formData.append('regNumber', regNumber);
+            formData.append('ticketImage', ticketImage); // image data as base64 string
 
-    // Api
-    fetch(formActionUrl, {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors' 
-    })
-    .then(response => {
-        // .
-        console.log('Form data submitted to Google Sheet successfully!');
-    })
-    .catch(error => {
-        console.error('Error submitting form data:', error);
-    });
-});
-
-// Handle the download button click
-downloadBtn.addEventListener('click', function () {
-    const ticketElement = document.getElementById('ticket');
-    const studentName = document.getElementById('fullName').value.replace(/ /g, '_');
-    const regNumber = document.getElementById('regNumber').value;
- // Use html2canvas to create the image
-    html2canvas(ticketElement, { scale: 2, useCORS: true }).then(canvas => {
-                const dataURL = canvas.toDataURL('image/jpeg', 0.98);
-                const downloadLink = document.createElement('a');
-                downloadLink.href = dataURL;
-                downloadLink.download = `INSPIRA'25_Ticket_${regNumber}_${studentName}.png`;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success'){
+                    console.log('Success:', data.message);
+                    alert('Ticket has been sent to your email successfully!');
+                    formContainer.classList.add('hidden');
+                    ticketContainer.classList.remove('hidden');
+                } else {
+                    console.error('Error from script:', data.message);
+                    alert('An error occurred while sending the email: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch Error:', error);
+                alert('A network error occurred. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-ticket-detailed-fill mr-2"></i> Get Ticket';
             });
         });
+    });
 
-// Handle the "Get Another Ticket" button click
-newTicketBtn.addEventListener('click', function() {
-    // Reset the form
-    ticketForm.reset();
-    // Hide the ticket and show the form again
-    ticketContainer.classList.add('hidden');
-    formContainer.classList.remove('hidden');
-});
+    // Download button functionality (remains the same)
+    downloadBtn.addEventListener('click', function () {
+        const ticketElement = document.getElementById('ticket');
+        const studentName = document.getElementById('fullName').value.replace(/ /g, '_');
+        const regNumber = document.getElementById('regNumber').value;
+        html2canvas(ticketElement, { scale: 2, useCORS: true }).then(canvas => {
+            const dataURL = canvas.toDataURL('image/jpeg', 0.98);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = dataURL;
+            downloadLink.download = `INSPIRA'25_Ticket_${regNumber}_${studentName}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        });
+    });
 
-    </script>
+    // "New Ticket" button functionality (remains the same)
+    newTicketBtn.addEventListener('click', function() {
+        ticketForm.reset();
+        ticketContainer.classList.add('hidden');
+        formContainer.classList.remove('hidden');
+    });
+
+</script>
 </body>
 
 </html>
