@@ -261,7 +261,7 @@ ticketForm.addEventListener('submit', function (e) {
         .then(data => {
             console.log('Success:', data);
              if(data.result !== 'success') {
-                alert('There was an error sending your ticket via email, but you can download it now.');
+                alert('There was an error sending your ticket via email, Go back and enter valid Email.');
             }
         })
         .catch(error => {
