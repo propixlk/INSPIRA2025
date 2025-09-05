@@ -89,13 +89,12 @@
             left: 0;
         }
 
-        /* Input field hover animation */
         .input-hover-effect {
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .input-hover-effect:hover {
-            border-color: #F28C1A; /* Orange-400 equivalent */
+            border-color: #F28C1A; 
             box-shadow: 0 0 10px rgba(242, 140, 26, 0.3);
         }
     </style>
@@ -164,8 +163,12 @@
         </main>
     </div>
     
-    <script src="data.js"></script>
+    <!-- CHANGE: Removed external data file. Data is now embedded in the script below. -->
     <script>
+        // This variable contains the student data in an encoded format (Base64).
+        // This makes it harder for users to view or modify the data directly.
+        const encodedStudentData = 'W3sicmVnTnVtYmVyIjoiQVNQLzIwMi8wMDEiLCJuYW1lIjoiQS5CLlMuV2l0aGFuYWdlIiwiY2VydGlmaWNhdGVJZCI6ImZhczAifSx7InJlZ051bWJlciI6IkFTUC8yMDIvMDAyIiwibmFtZSI6IkEuRy5OYW1hbCIsImNlcnRpZmljYXRlSWQiOiJmYXMwMDIifSx7InJlZ051bWJlciI6IkFTUC8yMDIvMDAzIiwibmFtZSI6IkEuQi5TLldpdGhhbmFnZSIsImNlcnRpZmljYXRlSWQiOiJmYXMwMDMifV0=';
+
         document.addEventListener('DOMContentLoaded', function() {
             // Mobile navigation toggle
             const toggleButton = document.getElementById('nav-toggle');
@@ -184,17 +187,30 @@
             const certificateIdInput = document.getElementById('certificate-id');
             const resultContainer = document.getElementById('result-container');
 
-            verifyForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const searchId = certificateIdInput.value.trim().toLowerCase();
-                
-                if (!searchId) {
-                    return; // Don't search if input is empty
+            // --- SECURITY ENHANCEMENT ---
+            // The 'encodedStudentData' variable is defined above.
+            // We decode it from Base64 to get the original JSON string, then parse it into an object.
+            // This makes it harder for people to simply read the data.
+            let studentData = [];
+            try {
+                studentData = JSON.parse(atob(encodedStudentData));
+            } catch (e) {
+                console.error("Error decoding or parsing student data:", e);
+                // Optionally display an error message to the user
+                resultContainer.classList.remove('hidden');
+                resultContainer.innerHTML = `<div class="bg-red-900/50 p-6 rounded-2xl"><h2 class="text-xl font-bold text-red-200">Error</h2><p>Could not load verification data. Please contact support.</p></div>`;
+            }
+
+            // --- VERIFY FUNCTION ---
+            // Moved the core logic into a reusable function
+            const performVerification = (searchId) => {
+                 if (!searchId) {
+                    return; 
                 }
 
-                const student = studentData.find(s => s.certificateId.toLowerCase() === searchId);
+                const student = studentData.find(s => s.certificateId.toLowerCase() === searchId.toLowerCase());
                 
-                resultContainer.classList.remove('hidden'); // Show the container
+                resultContainer.classList.remove('hidden');
 
                 if (student) {
                     // --- SUCCESS ---
@@ -241,13 +257,34 @@
                     `;
                 }
 
-                // Add event listener for the clear button after it's been rendered
                 document.getElementById('clear-result-button').addEventListener('click', () => {
                     resultContainer.classList.add('hidden');
                     resultContainer.innerHTML = '';
                     certificateIdInput.value = '';
+                    // Also clear the URL parameter if you want
+                    history.pushState(null, "", window.location.pathname);
                 });
+            }
+
+
+            // --- FORM SUBMISSION ---
+            verifyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const searchId = certificateIdInput.value.trim();
+                performVerification(searchId);
             });
+
+
+            // --- NEW FEATURE: INDIVIDUAL VERIFICATION LINKS ---
+            // This code runs when the page loads to check for a certificate ID in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const certIdFromUrl = urlParams.get('id');
+
+            if (certIdFromUrl) {
+                // If an 'id' is found in the URL, put it in the input box and automatically verify it.
+                certificateIdInput.value = certIdFromUrl;
+                performVerification(certIdFromUrl);
+            }
         });
     </script>
 
