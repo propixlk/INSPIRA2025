@@ -14,5 +14,4 @@ const studentData = [
     "name": "A.B.C. Nama", 
     "certificateId": "fas003" 
   },
-  // ...
 ];
