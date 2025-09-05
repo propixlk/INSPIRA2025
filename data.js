@@ -1,7 +1,3 @@
-// This file contains the student data for certificate verification.
-// To add a new student, copy one of the lines below, paste it at the end,
-// and change the details. Make sure each line ends with a comma.
-
 const studentData = [
   { 
     regNumber: "ASP/202/001", 
@@ -18,5 +14,10 @@ const studentData = [
     name: "A.B.S.Withanage", 
     certificateId: "fas003" 
   },
-  // Add new student records here
+  // නව ශිෂ්‍යයා මෙතනට එකතු කරන්න
+  { 
+    regNumber: "ASP/202/004", 
+    name: "Nimal Perera", 
+    certificateId: "fas004" 
+  }
 ];
